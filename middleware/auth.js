@@ -13,15 +13,16 @@ passport.use(new GoogleStrategy({
 }, function verify(issuer, profile, cb) {
     db.query(`SELECT * FROM federated_credentials WHERE provider = ${issuer} AND subject = ${profile.id}`
         , function (err, row) {
-            if (err) { return cb(err); }
+            // if (err) { return cb("My Custom error "+err); }
             if (!row) {
                 db.query(`INSERT INTO users(username,email,created_date) VALUES (${profile.displayName}, test@gmail.com, now())`,
                     function (err) {
-                        if (err) { return cb(err) };
-                        var id = this.lastID;
+                        // if (err) { return cb(err) };
+                        console.log(profile);
+                        var id = profile.id;
                         db.query(`INSERT INTO federated_credentials (user_id, provider, subject) VALUES (${id}, ${issuer}, ${profile.id})`,
                             function (err) {
-                                if (err) { return cb(err); }
+                                // if (err) { return cb(err); }
                                 var user = { id: id, name: profile.displayName };
                                 return cb(null, user);
                             });
@@ -29,7 +30,7 @@ passport.use(new GoogleStrategy({
             } else {
                 db.query(`SELECT * FROM users WHERE id = ${row.user_id}`,
                     function (err, row) {
-                        if (err) { return cb(err); }
+                        // if (err) { return cb(err); }
                         if (!row) { return cb(null, false); }
                         return cb(null, row);
                     });

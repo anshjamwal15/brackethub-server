@@ -9,8 +9,10 @@ function query(queryString, callbackFunction) {
         password: process.env.PGPASSWORD,
         port: process.env.PGPORT
     });
+    // TODO fix callback
     pool.query(queryString, (error, results) => {
-        callbackFunction(setResponse(error, results));
+        // callbackFunction(setResponse(error, results));
+        return results;
     });
 }
 

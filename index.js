@@ -5,6 +5,7 @@ var passport = require('passport');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 const sessionConfig = require('./config/sessionConfig');
+var db = require('./config/db');
 const app = express();
 const port = 5000;
 
@@ -29,8 +30,10 @@ app.use(function(req, res, next) {
 app.use('/', authRouter);
 app.use('/user', userRouter);
 
-app.get('/hello', (req, res) => {
-  res.send('Hello World!')
+app.get('/hello', (req, respo) => {
+  var j = '';
+  var r = db.query('SELECT * FROM users ORDER BY id ASC');
+  respo.send(r);
 })
 
 app.listen(port, () => {
