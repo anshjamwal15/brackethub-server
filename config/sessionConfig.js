@@ -24,7 +24,8 @@ const sessionConfig = {
     saveUninitialized: true,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        // ame: true,
+        resave: true,
+        saveUninitialized: true,
         secure: false // ENABLE ONLY ON HTTPS
     }
 }

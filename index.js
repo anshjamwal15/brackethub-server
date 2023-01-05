@@ -30,10 +30,8 @@ app.use(function(req, res, next) {
 app.use('/', authRouter);
 app.use('/user', userRouter);
 
-app.get('/hello', (req, respo) => {
-  var j = '';
-  var r = db.query('SELECT * FROM users ORDER BY id ASC');
-  respo.send(r);
+app.get('/hello', (req, res) => {
+  res.send('hello');
 })
 
 app.listen(port, () => {

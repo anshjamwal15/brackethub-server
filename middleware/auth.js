@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
+var dateTime = require('../helper/CustomDateTime');
 var GoogleStrategy = require('passport-google-oidc');
 var db = require('../config/db');
 require('dotenv').config();
@@ -9,20 +10,18 @@ passport.use(new GoogleStrategy({
     clientID: process.env.CLIENTID,
     clientSecret: process.env.CLIENTSECRET,
     callbackURL: '/oauth2/redirect/google',
-    scope: ['profile']
+    // scope: ['profile','email']
 }, async function verify(issuer, profile, cb) {
-    const credentials = await db.query(`SELECT * FROM federated_credentials WHERE provider = $1 AND subject = $2`, [issuer, profile.id]);
-    if (!credentials) {
-        const addUser = await db.query(`INSERT INTO users(username,email,created_date) VALUES ($1,$2,$3)`, [profile.displayName, 'test@gmail.com']);
-        if (!addUser) {
-            const addCredentials = await db.query(`INSERT INTO federated_credentials (user_id, provider, subject) VALUES ($1, $2, $3)`, [profile.id, issuer, 'subject']);
-            var user = { id: profile.id, name: profile.displayName };
-            if (!addCredentials) { return cb(null, user); }
-        }
+    const email = profile.emails[0].value;
+    const checkUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (checkUser.length <= 0) {
+        // TODO Sign JWT
+        const addUser = await db.query(`INSERT INTO users(username,email) VALUES ($1,$2) RETURNING *`, [profile.displayName, email]);
+        var user = { id: profile.id, name: profile.displayName };
+        return cb(null, user);
     } else {
-        const selectUser = await db.query('SELECT * FROM users WHERE id = $1', [credentials.user_id]);
-        if (!selectUser) { return cb(null, false); }
-        return cb(null, selectUser);
+        // if (checkUser.length <= 0) { return cb(null, false); }
+        return cb(null, checkUser);
     }
 }));
 
@@ -43,7 +42,9 @@ router.get('/login', (req, res, next) => {
 });
 
 // Login with google
-router.get('/login/google', passport.authenticate('google'));
+router.get('/login/google', passport.authenticate('google', {
+    scope: ['email', 'profile']
+}));
 
 // Redirect URL
 router.get('/oauth2/redirect/google', passport.authenticate('google', {

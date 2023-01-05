@@ -19,6 +19,7 @@ module.exports = {
                 'executed query',
                 {text, duration, rows: res.rowCount}
             );
+            return res.rows;
         } catch (error) {
             console.log('error in query', {text})
             throw error;
