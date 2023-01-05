@@ -1,28 +1,27 @@
 const Pool = require('pg').Pool;
 require('dotenv').config();
 
-function query(queryString, callbackFunction) {
-    const pool = new Pool({
-        user: process.env.PGUSER,
-        host: process.env.PGHOST,
-        database: process.env.PGDATABASE,
-        password: process.env.PGPASSWORD,
-        port: process.env.PGPORT
-    });
-    // TODO fix callback
-    pool.query(queryString, (error, results) => {
-        // callbackFunction(setResponse(error, results));
-        return results;
-    });
-}
-
-function setResponse(error, results) {
-    return {
-        error: error,
-        results: results ? results : null
-    };
-}
+const pool = new Pool({
+    user: process.env.PGUSER,
+    host: process.env.PGHOST,
+    database: process.env.PGDATABASE,
+    password: process.env.PGPASSWORD,
+    port: process.env.PGPORT
+});
 
 module.exports = {
-    query
+    async query(text, params) {
+        const start = Date.now();
+        try {
+            const res = await pool.query(text, params);
+            const duration = Date.now() - start;
+            console.log(
+                'executed query',
+                {text, duration, rows: res.rowCount}
+            );
+        } catch (error) {
+            console.log('error in query', {text})
+            throw error;
+        }
+    }
 };
