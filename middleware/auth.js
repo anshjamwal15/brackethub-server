@@ -1,56 +1,19 @@
-var express = require('express');
-var router = express.Router();
-var passport = require('passport');
-var dateTime = require('../helper/CustomDateTime');
-var GoogleStrategy = require('passport-google-oidc');
-var db = require('../config/db');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.CLIENTID,
-    clientSecret: process.env.CLIENTSECRET,
-    callbackURL: '/oauth2/redirect/google',
-    // scope: ['profile','email']
-}, async function verify(issuer, profile, cb) {
-    const email = profile.emails[0].value;
-    const checkUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (checkUser.length <= 0) {
-        // TODO Sign JWT
-        const addUser = await db.query(`INSERT INTO users(username,email) VALUES ($1,$2) RETURNING *`, [profile.displayName, email]);
-        var user = { id: profile.id, name: profile.displayName };
-        return cb(null, user);
+module.exports = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, process.env.JWTSECRET);
+    const userId = decodedToken.userId;
+    if (req.body.userId && req.body.userId !== userId) {
+      throw 'Invalid user ID';
     } else {
-        // if (checkUser.length <= 0) { return cb(null, false); }
-        return cb(null, checkUser);
+      next();
     }
-}));
-
-passport.serializeUser(function (user, cb) {
-    process.nextTick(function () {
-        cb(null, { id: user.id, username: user.username, name: user.name });
+  } catch {
+    res.status(401).json({
+      error: new Error('Invalid request!')
     });
-});
-
-passport.deserializeUser(function (user, cb) {
-    process.nextTick(function () {
-        return cb(null, user);
-    });
-});
-
-router.get('/login', (req, res, next) => {
-    res.send('This is login screen');
-});
-
-// Login with google
-router.get('/login/google', passport.authenticate('google', {
-    scope: ['email', 'profile']
-}));
-
-// Redirect URL
-router.get('/oauth2/redirect/google', passport.authenticate('google', {
-    successReturnToOrRedirect: '/hello',
-    failureRedirect: '/login'
-}));
-
-
-module.exports = router;
+  }
+};

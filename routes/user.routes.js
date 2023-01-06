@@ -1,11 +1,13 @@
 var express = require('express');
-var ensureLogIn = require('connect-ensure-login').ensureLoggedIn;
 var router = express.Router();
+const userController = require('../controllers/userController');
+const auth = require('../middleware/auth');
 
-var ensureLoggedIn = ensureLogIn();
+router.post('/signup', userController.signUp);
+router.post('/login', userController.logIn);
 
-router.get('/check', ensureLoggedIn, (req, res, next) => {
-    res.send('Entered');
+router.get('/check', (req, res) => {
+    res.status(200);
 });
 
 module.exports = router;
