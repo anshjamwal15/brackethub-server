@@ -17,7 +17,7 @@ exports.signUp = async (req, res) => {
 exports.logIn = async (req, res) => {
     const { email, password } = req.body;
     const user = await userRepository.findUser(email);
-    if (user.length === 0) res.status(401);
+    if (user.length === 0) res.status(401).send();
     const isValid = await bcrypt.compare(password, user[0].password);
     if (!isValid) {
         res.status(401).send();
@@ -32,5 +32,18 @@ exports.logIn = async (req, res) => {
             email: user[0].email,
             token: token
         });
+    }
+};
+
+exports.updateUsername = async (req, res) => {
+    const { username, email } = req.body;
+    const existingUser = await userRepository.findUser(email);
+    if (existingUser.length > 0) {
+        const user = await userRepository.updateUsername(username, email);
+        if (user.length > 0) {
+            res.status(200).send();
+        }
+    } else {
+        res.status(400).send('Invalid email');
     }
 };
