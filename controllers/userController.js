@@ -16,7 +16,7 @@ exports.signUp = async (req, res) => {
 
 exports.logIn = async (req, res) => {
     const { email, password } = req.body;
-    const user = await userRepository.findUser(email);
+    const user = await userRepository.findUserByEmail(email);
     if (user.length === 0) res.status(401).send();
     const isValid = await bcrypt.compare(password, user[0].password);
     if (!isValid) {
@@ -37,7 +37,7 @@ exports.logIn = async (req, res) => {
 
 exports.updateUsername = async (req, res) => {
     const { username, email } = req.body;
-    const existingUser = await userRepository.findUser(email);
+    const existingUser = await userRepository.findUserByEmail(email);
     if (existingUser.length > 0) {
         const user = await userRepository.updateUsername(username, email);
         if (user.length > 0) {
@@ -45,5 +45,32 @@ exports.updateUsername = async (req, res) => {
         }
     } else {
         res.status(400).send('Invalid email');
+    }
+};
+
+exports.addFriend = async (req, res) => {
+    const { email, sendingUser } = req.body;
+    const checkFriend = await userRepository.findUserByEmail(email);
+    if (checkFriend.length > 0) {
+        // TODO request_accepted flag 
+        const addFriend = await userRepository.addFriend(sendingUser, checkFriend[0].id);
+        if (addFriend.length > 0) res.status(200).send();
+    } else {
+        res.status(400).send();
+    }
+};
+
+exports.friendsList = async (req, res) => {
+    const { email } = req.body;
+    const existingUser = await userRepository.findUserByEmail(email);
+    if (existingUser.length > 0) {
+        const friendsList = await userRepository.friendsList(existingUser[0].id);
+        if (friendsList.length > 0) {
+            res.status(200).json(friendsList);
+        } else {
+            res.status(200).json(friendsList);
+        }
+    } else {
+        res.status(400).send();
     }
 };

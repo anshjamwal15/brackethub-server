@@ -8,6 +8,8 @@ router.post('/login', userController.logIn);
 
 // User
 router.post('/username', userController.updateUsername);
+router.post('/addfriend', userController.addFriend);
+router.get('/friends', userController.friendsList);
 
 router.get('/check', auth, (req, res) => {
     res.status(200).send();
