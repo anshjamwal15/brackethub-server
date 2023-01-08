@@ -10,7 +10,6 @@ passport.use(new GoogleStrategy({
     clientID: process.env.CLIENTID,
     clientSecret: process.env.CLIENTSECRET,
     callbackURL: '/oauth2/redirect/google',
-    // scope: ['profile','email']
 }, async function verify(issuer, profile, cb) {
     const email = profile.emails[0].value;
     const checkUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
