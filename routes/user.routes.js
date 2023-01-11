@@ -9,6 +9,7 @@ router.post('/login', userController.logIn);
 // User
 router.post('/username', userController.updateUsername);
 router.post('/addfriend', userController.addFriend);
+router.post('/acceptfriend', userController.acceptFriendRequests);
 router.get('/friends', userController.friendsList);
 
 router.get('/check', auth, (req, res) => {

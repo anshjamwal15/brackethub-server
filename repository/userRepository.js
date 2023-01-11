@@ -24,13 +24,20 @@ module.exports = {
     },
 
     async addFriend(userId,friendId) {
-        // p1 = my id and p2 = friend id (p1,p2)
-        await db.query(`INSERT INTO user_friends(friend_id,created_date,updated_date,user_id) VALUES ($1,now(),now(),$2) RETURNING *`, [userId,friendId]);
-        //p1 = friend id and p2 = my id (p1,p2)
-        return await db.query(`INSERT INTO user_friends(friend_id,created_date,updated_date,user_id) VALUES ($1,now(),now(),$2) RETURNING *`, [friendId,userId]);
+        return await db.query(`INSERT INTO friend_requests(friend_id,created_date,updated_date,user_id) VALUES ($1,now(),now(),$2) RETURNING *`, [friendId,userId]);
+    },
+
+    async acceptFriendRequests(userId,friendId) {
+        const newFriend = await db.query(`UPDATE friend_requests SET accepted =$1 where user_id=$2 and friend_id=$3 RETURNING *`, [true,userId,friendId]);
+        if(newFriend.length > 0) {
+            const addedFriend = await db.query(`INSERT INTO user_friends(friend_id,created_date,updated_date,user_id) VALUES ($1,now(),now(),$2) RETURNING *`, [newFriend[0].friend_id,newFriend[0].user_id]);
+            if(addedFriend.length > 0) {
+                return db.query(`DELETE FROM friend_requests WHERE id =$1 RETURNING *`, [newFriend[0].id]);
+            }
+        }
     },
 
     async friendsList(userId) {
-        return await db.query('SELECT * FROM user_friends WHERE user_id = $1 and request_accepted = true', [userId]); 
+        return await db.query('SELECT * FROM user_friends WHERE user_id = $1', [userId]); 
     }
 };
