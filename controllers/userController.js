@@ -49,12 +49,22 @@ exports.updateUsername = async (req, res) => {
 };
 
 exports.addFriend = async (req, res) => {
-    const { email, sendingUser } = req.body;
-    const checkFriend = await userRepository.findUserByEmail(email);
+    const { friendEmail, sendingUser } = req.body;
+    const checkFriend = await userRepository.findUserByEmail(friendEmail);
     if (checkFriend.length > 0) {
-        // TODO request_accepted flag 
         const addFriend = await userRepository.addFriend(sendingUser, checkFriend[0].id);
         if (addFriend.length > 0) res.status(200).send();
+    } else {
+        res.status(400).send();
+    }
+};
+
+exports.acceptFriendRequests = async (req, res) => {
+    const { userId, friendEmail } = req.body;
+    const checkFriend = await userRepository.findUserByEmail(friendEmail);
+    if (checkFriend.length > 0) {
+        const addedFriend = await userRepository.acceptFriendRequests(userId, checkFriend[0].id);
+        if (addedFriend.length > 0) res.status(200).send();
     } else {
         res.status(400).send();
     }

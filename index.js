@@ -3,9 +3,11 @@ const cors = require('cors');
 const session = require('express-session');
 var logger = require('morgan');
 const sessionConfig = require('./config/sessionConfig');
-var db = require('./config/db');
 const app = express();
-const port = 8081;
+// const httpServer = require("http").createServer();
+// const io = require("socket.io")(httpServer);
+// require('./listeners/messageListener').testWs(io);
+const port = 8082;
 
 var userRouter = require('./routes/user.routes');
 
@@ -15,7 +17,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session(sessionConfig.sessionConfig));
 
-// app.use('/', authRouter);
 app.use('/user', userRouter);
 
 app.get('/hello', (req, res) => {
