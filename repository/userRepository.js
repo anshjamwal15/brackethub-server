@@ -39,5 +39,9 @@ module.exports = {
 
     async friendsList(userId) {
         return await db.query('SELECT * FROM user_friends WHERE user_id = $1', [userId]); 
+    },
+
+    async checkAvailableChatRoom(userIds) {
+        return await db.query('select * from chat_room where $1=ANY(user_ids);', [userIds]); 
     }
 };
