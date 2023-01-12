@@ -4,9 +4,9 @@ const session = require('express-session');
 var logger = require('morgan');
 const sessionConfig = require('./config/sessionConfig');
 const app = express();
-// const httpServer = require("http").createServer();
-// const io = require("socket.io")(httpServer);
-// require('./listeners/messageListener').testWs(io);
+const http = require("http");
+const io = require("socket.io")
+const WebSockets = require('./helper/WebSockets');
 const port = 8082;
 
 var userRouter = require('./routes/user.routes');
@@ -23,6 +23,13 @@ app.get('/hello', (req, res) => {
   res.send('hello');
 })
 
-app.listen(port, () => {
-  console.log(`App running on port ${port}`)
-})
+const server = http.createServer(app);
+
+global.io = io.listen(server);
+global.io.on('connection', WebSockets.connection)
+
+server.listen(port);
+
+server.on("listening", () => {
+  console.log(`Listening on port:: http://localhost:${port}/`)
+});
