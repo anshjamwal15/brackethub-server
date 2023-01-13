@@ -1,4 +1,4 @@
-const userRepository = require('../repository/userRepository');
+const userModel = require('../model/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -6,7 +6,7 @@ require('dotenv').config();
 exports.signUp = async (req, res) => {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userRepository.createUser(email, hashedPassword);
+    const newUser = await userModel.createUser(email, hashedPassword);
     if (newUser === 'User added Successfully') {
         res.status(200).send('User added');
     } else {
@@ -16,7 +16,7 @@ exports.signUp = async (req, res) => {
 
 exports.logIn = async (req, res) => {
     const { email, password } = req.body;
-    const user = await userRepository.findUserByEmail(email);
+    const user = await userModel.findUserByEmail(email);
     if (user.length === 0) res.status(401).send();
     const isValid = await bcrypt.compare(password, user[0].password);
     if (!isValid) {
@@ -37,9 +37,9 @@ exports.logIn = async (req, res) => {
 
 exports.updateUsername = async (req, res) => {
     const { username, email } = req.body;
-    const existingUser = await userRepository.findUserByEmail(email);
+    const existingUser = await userModel.findUserByEmail(email);
     if (existingUser.length > 0) {
-        const user = await userRepository.updateUsername(username, email);
+        const user = await userModel.updateUsername(username, email);
         if (user.length > 0) {
             res.status(200).send();
         }
@@ -50,9 +50,9 @@ exports.updateUsername = async (req, res) => {
 
 exports.addFriend = async (req, res) => {
     const { friendEmail, sendingUser } = req.body;
-    const checkFriend = await userRepository.findUserByEmail(friendEmail);
+    const checkFriend = await userModel.findUserByEmail(friendEmail);
     if (checkFriend.length > 0) {
-        const addFriend = await userRepository.addFriend(sendingUser, checkFriend[0].id);
+        const addFriend = await userModel.addFriend(sendingUser, checkFriend[0].id);
         if (addFriend.length > 0) res.status(200).send();
     } else {
         res.status(400).send();
@@ -61,9 +61,9 @@ exports.addFriend = async (req, res) => {
 
 exports.acceptFriendRequests = async (req, res) => {
     const { userId, friendEmail } = req.body;
-    const checkFriend = await userRepository.findUserByEmail(friendEmail);
+    const checkFriend = await userModel.findUserByEmail(friendEmail);
     if (checkFriend.length > 0) {
-        const addedFriend = await userRepository.acceptFriendRequests(userId, checkFriend[0].id);
+        const addedFriend = await userModel.acceptFriendRequests(userId, checkFriend[0].id);
         if (addedFriend.length > 0) res.status(200).send();
     } else {
         res.status(400).send();
@@ -72,9 +72,9 @@ exports.acceptFriendRequests = async (req, res) => {
 
 exports.friendsList = async (req, res) => {
     const { email } = req.body;
-    const existingUser = await userRepository.findUserByEmail(email);
+    const existingUser = await userModel.findUserByEmail(email);
     if (existingUser.length > 0) {
-        const friendsList = await userRepository.friendsList(existingUser[0].id);
+        const friendsList = await userModel.friendsList(existingUser[0].id);
         if (friendsList.length > 0) {
             res.status(200).json(friendsList);
         } else {
