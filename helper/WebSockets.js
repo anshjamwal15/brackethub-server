@@ -1,7 +1,6 @@
 class WebSockets {
     users = [];
     connection(client) {
-      
       client.on("disconnect", () => {
         this.users = this.users.filter((user) => user.socketId !== client.id);
       });
@@ -36,5 +35,6 @@ class WebSockets {
     }
   }
   
-  export default new WebSockets();
+const websocket = new WebSockets();
+exports.websocket;
   
