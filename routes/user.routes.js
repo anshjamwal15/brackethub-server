@@ -4,14 +4,15 @@ const userController = require('../controllers/userController');
 const auth = require('../middleware/auth');
 
 router.post('/signup', userController.signUp);
-router.post('/login', userController.logIn);
+// router.post('/login', userController.logIn);
 
 // User
-router.post('/username', userController.updateUsername);
-router.post('/addfriend', userController.addFriend);
-router.post('/acceptfriend', userController.acceptFriendRequests);
-router.get('/friends', userController.friendsList);
+// router.post('/username', userController.updateUsername);
+// router.post('/addfriend', userController.addFriend);
+// router.post('/acceptfriend', userController.acceptFriendRequests);
+// router.get('/friends', userController.friendsList);
 
+// protected routes example
 router.get('/check', auth, (req, res) => {
     res.status(200).send();
 });
