@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-var logger = require('morgan');
+const logger = require('morgan');
 const app = express();
 const port = 8000;
 

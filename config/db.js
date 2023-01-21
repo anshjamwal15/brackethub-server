@@ -19,10 +19,10 @@ module.exports = {
                 'executed query',
                 { text, duration, rows: res.rowLength }
             );
-            return res.rows;
+            return res;
         } catch (error) {
-            console.log(`Error in query : ${text}`);
-            throw error;
+            console.log(`Error occurred : ${error}`);
+            return undefined;
         }
     },
     client
