@@ -47,12 +47,12 @@ exports.updateUsername = async (req, res) => {
 
 exports.addFriend = async (req, res) => {
     const data = req.body;
-    const checkFriend = await userModel.findUserByEmail(data.friendEmail);
-    if (checkFriend.rows.length > 0) {
+    const checkFriend = await userModel.checkFriendExists(data.userEmail, data.friendEmail);
+    if (checkFriend.rows.length === 0) {
         const addFriend = await userModel.addFriend(data);
         if (addFriend.length > 0) res.status(200).send();
     } else {
-        res.status(400).send();
+        res.status(400).send(`${data.friendEmail} is already your friend`);
     }
 };
 
