@@ -22,8 +22,14 @@ exports.findUserByEmail = async (email) => {
     return await db.query(`SELECT * FROM ${userTable} WHERE email = ?`, [email]);
 };
 
-exports.addFriend = async (data) => {
+exports.acceptFriendRequest = async (data) => {
     const { userEmail, friendEmail, friendUsername, username } = data;
+    // delete from friend Requests table
+    // 1st user entry 
+    await db.query('delete from friend_requests_by_emails where user_email = ? and accepted = False and friend_email= ?', [userEmail, friendEmail]);
+    // 2nd user entry
+    await db.query('delete from friend_requests_by_emails where user_email = ? and accepted = True and friend_email= ?', [friendEmail,userEmail]);
+    // Add in friends relation tables
     // 1st user entry
     await db.query(`INSERT INTO friends_by_useremail_and_friendemail(user_email,friend_email,created_date,friend_username) 
     VALUES (?,?,toTimestamp(now()),?)`, [userEmail, friendEmail, friendUsername]);
@@ -41,16 +47,19 @@ exports.friendsList = async (email) => {
     return await db.query('SELECT * FROM friends_by_useremail_and_friendemail WHERE user_email = ?', [email]); 
 };
 
-//     acceptFriendRequests(userId,friendId) {
-//         const newFriend = await db.query(`UPDATE friend_requests SET accepted =$1 where user_id=$2 and friend_id=$3 RETURNING *`, [true,userId,friendId]);
-//         if(newFriend.length > 0) {
-//             const addedFriend = await db.query(`INSERT INTO user_friends(friend_id,created_date,updated_date,user_id) VALUES ($1,now(),now(),$2) RETURNING *`, [newFriend[0].friend_id,newFriend[0].user_id]);
-//             if(addedFriend.length > 0) {
-//                 return db.query(`DELETE FROM friend_requests WHERE id =$1 RETURNING *`, [newFriend[0].id]);
-//             }
-//         }
-//     };
+exports.sendFriendRequest = async (userEmail, friendEmail) => {
+    // 1st user entry
+    await db.query(`INSERT INTO friend_requests_by_emails(user_email,friend_email,created_date,accepted) 
+    VALUES (?,?,toTimestamp(now()),?)`, [userEmail, friendEmail, true]);
+    // 2nd user entry
+    await db.query(`INSERT INTO friend_requests_by_emails(user_email,friend_email,created_date,accepted) 
+    VALUES (?,?,toTimestamp(now()),?)`, [friendEmail, userEmail, false]);
+    return [0];
+};
 
+exports.pendingFriendsRequestList = async (userEmail) => {
+    return await db.query('SELECT * FROM friend_requests_by_emails WHERE user_email = ? and accepted = ?', [userEmail, false]);
+};
 
 
 

@@ -45,11 +45,11 @@ exports.updateUsername = async (req, res) => {
     }
 };
 
-exports.addFriend = async (req, res) => {
+exports.acceptFriendRequest = async (req, res) => {
     const data = req.body;
     const checkFriend = await userModel.checkFriendExists(data.userEmail, data.friendEmail);
     if (checkFriend.rows.length === 0) {
-        const addFriend = await userModel.addFriend(data);
+        const addFriend = await userModel.acceptFriendRequest(data);
         if (addFriend.length > 0) res.status(200).send();
     } else {
         res.status(400).send(`${data.friendEmail} is already your friend`);
@@ -66,18 +66,20 @@ exports.friendsList = async (req, res) => {
     }
 };
 
+exports.sendFriendRequests = async (req, res) => {
+    const { userEmail, friendEmail } = req.body;
+    const sendFriendRequest = await userModel.sendFriendRequest(userEmail, friendEmail);
+    if (sendFriendRequest.length > 0) res.status(200).send();
+    res.status(500).send();
+};
 
-
-
-
-// exports.acceptFriendRequests = async (req, res) => {
-//     const { userId, friendEmail } = req.body;
-//     const checkFriend = await userModel.findUserByEmail(friendEmail);
-//     if (checkFriend.length > 0) {
-//         const addedFriend = await userModel.acceptFriendRequests(userId, checkFriend[0].id);
-//         if (addedFriend.length > 0) res.status(200).send();
-//     } else {
-//         res.status(400).send();
-//     }
-// };
+exports.friendsRequestList = async (req, res) => {
+    const { userEmail } = req.body;
+    const pendingFriendsRequestList = await userModel.pendingFriendsRequestList(userEmail);
+    if (pendingFriendsRequestList.rows.length > 0) {
+        res.status(200).json(pendingFriendsRequestList.rows);
+    } else {
+        res.status(200).send('No requests Found');
+    }
+};
 

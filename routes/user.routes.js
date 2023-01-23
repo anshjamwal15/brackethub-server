@@ -8,8 +8,9 @@ router.post('/login', userController.logIn);
 
 // User
 router.post('/username', userController.updateUsername);
-router.post('/addfriend', userController.addFriend);
-// router.post('/acceptfriend', userController.acceptFriendRequests);
+router.post('/addfriend', userController.acceptFriendRequest);
+router.post('/sendrequest', userController.sendFriendRequests);
+router.get('/requestlist', userController.friendsRequestList);
 router.get('/friends', userController.friendsList);
 
 // protected routes example
