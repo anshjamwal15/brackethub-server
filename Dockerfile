@@ -1,5 +1,18 @@
-FROM ubuntu:latest
+FROM node:16.17.0-bullseye-slim
 
-RUN echo sudo apt update
-RUN echo sudo apt install openjdk-8-jdk -y
-RUN java -version
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+
+WORKDIR /home/node/app
+
+COPY package.json ./
+
+USER node
+
+RUN npm install
+
+COPY --chown=node:node . .
+
+EXPOSE 8080
+
+CMD [ "node", "index.js" ]
+
