@@ -3,6 +3,7 @@ module.exports = {
     DISCONNECT: 'disconnect',
     SEND_MESSAGE: 'send-sms',
     RECEIVE_MESSAGE: 'receive',
-    SHOW_MESSAGE: 'show-message'
+    SHOW_MESSAGE: 'show-message',
+    JOIN_CHAT: 'join-chat'
   };
   

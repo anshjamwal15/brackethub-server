@@ -1,10 +1,8 @@
 const db = require('../config/db');
 
-// exports.getConversationByRoomId = async (chatRoomId) => {
-//     return await db.query('SELECT * FROM chat_message WHERE chat_room_id = $1', [chatRoomId]);
-// };
 
-exports.createPostInChat = async (chatRoomId, message, postedByUser) => {
-    return await db.query(`INSERT INTO chat_message(message,chat_room_id,posted_by,created_date,read_by_recipients_id) VALUES ($1,$2,$3,now(),$4) RETURNING *`, [message,chatRoomId,postedByUser,{postedByUser}]);
+exports.sendMessage = async (user_id, receiver_id, message) => {
+    await db.query(`INSERT INTO chat_messages (message_id,from_user,to_user,created_date,message) VALUES (1,?,?,toTimestamp(now()),?)`, [user_id,receiver_id,message]);
 };
 
+exports.getMessage = async (user_id, user_id2, earliest_message_id) => {};

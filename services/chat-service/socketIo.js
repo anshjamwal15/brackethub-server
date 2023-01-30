@@ -1,4 +1,6 @@
 const socketio = require('socket.io');
+const chatMessage = require('../../model/chatMessage');
+const groupChatMessage = require('../../model/groupMessage');
 const SocketEvents = require('./SocketEvents');
 
 module.exports = (http) => {
@@ -7,22 +9,44 @@ module.exports = (http) => {
     });
 
     io.on(SocketEvents.CONNECT, (socket) => {
-        
-        // Showing all message
-        const message = {
-            id: 2,
-            sentBy: 'user2',
-            data: 'bro',
-        };
 
-        // socket.emit(SocketEvents.SHOW_MESSAGE, message);
+        /**
+        * Fetching data and storing in db.
+        * @param {channel_type} channel_type 
+        * The channel_type field is used to distinguish private chats from group chats.
+        */
+        socket.on(SocketEvents.RECEIVE_MESSAGE, async (data) => {
 
-        socket.on(SocketEvents.SEND_MESSAGE, async (data) => {
-            message.data = data;            
-            console.log(message);
-            // socket.emit(SocketEvents.SHOW_MESSAGE, message);
+            if (data.channel_type === 'group') {
+                await groupChatMessage.sendMessage();
+            } else {
+                await chatMessage.sendMessage();
+            }
         });
-        
-        
+
+        /**
+        * Sending data from db.
+        * @param {earliest_message_id} earliest_message_id 
+        * The earliest_message_id is the latest message locally available on the client. 
+        * It is used as the sort key to range query the chat tables.
+        */
+        socket.on(SocketEvents.SHOW_MESSAGE, async (data) => {
+            const { user_id, user_id2, channel_type, earliest_message_id } = data;
+            if (channel_type === 'group') {
+                const fetched_message = await groupChatMessage.sendMessage();
+                socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
+            } else {
+                const fetched_message = await chatMessage.getMessage(user_id, user_id2, earliest_message_id);
+                socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
+            }
+
+        });
+
+        // socket.on(SocketEvents.JOIN_CHAT, async (data) => {
+
+
+        // });
+
+
     });
 };
