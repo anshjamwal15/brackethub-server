@@ -3,12 +3,12 @@ const cors = require('cors');
 const logger = require('morgan');
 const app = express();
 const server = require('http').Server(app);
-const createSocket = require('./events/socketIo');
+const createSocket = require('./services/chat-service/socketIo');
 require('dotenv').config();
 const port = process.env.PORT || 8080;
 
 // Routes
-const userRouter = require('./routes/user.routes');
+const userRouter = require('./services/web-service/routes/user.routes');
 
 // App configs
 createSocket(server);
