@@ -17,10 +17,12 @@ module.exports = (http) => {
         */
         socket.on(SocketEvents.RECEIVE_MESSAGE, async (data) => {
 
-            if (data.channel_type === 'group') {
+            const { user_id, user_id2, channel_type, message } = data;
+
+            if (channel_type === 'group') {
                 await groupChatMessage.sendMessage();
             } else {
-                await chatMessage.sendMessage();
+                await chatMessage.sendMessage(user_id, user_id2, message);
             }
         });
 
@@ -31,15 +33,14 @@ module.exports = (http) => {
         * It is used as the sort key to range query the chat tables.
         */
         socket.on(SocketEvents.SHOW_MESSAGE, async (data) => {
-            const { user_id, user_id2, channel_type, earliest_message_id } = data;
+            const { user_id, user_id2, channel_type } = data;
             if (channel_type === 'group') {
                 const fetched_message = await groupChatMessage.sendMessage();
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
             } else {
-                const fetched_message = await chatMessage.getMessage(user_id, user_id2, earliest_message_id);
-                socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
+                const fetched_message = await chatMessage.getMessage(user_id, user_id2);
+                socket.emit(SocketEvents.SEND_MESSAGE, fetched_message.rows);
             }
-
         });
 
         // socket.on(SocketEvents.JOIN_CHAT, async (data) => {
