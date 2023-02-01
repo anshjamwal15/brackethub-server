@@ -38,7 +38,7 @@ module.exports = (http) => {
                 const fetched_message = await groupChatMessage.sendMessage();
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
             } else {
-                const fetched_message = await chatMessage.getMessage(user_id, user_id2);
+                const fetched_message = await chatMessage.getAllMessages(user_id, user_id2);
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message.rows);
             }
         });
