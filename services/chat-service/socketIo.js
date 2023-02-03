@@ -43,10 +43,7 @@ module.exports = (http) => {
             }
         });
 
-        // socket.on(SocketEvents.JOIN_CHAT, async (data) => {
 
-
-        // });
 
 
     });
