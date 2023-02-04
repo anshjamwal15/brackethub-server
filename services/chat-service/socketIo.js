@@ -23,6 +23,8 @@ module.exports = (http) => {
                 await groupChatMessage.sendMessage();
             } else {
                 await chatMessage.sendMessage(user_id, user_id2, message);
+                const fetched_message = await chatMessage.getAllMessages(user_id, user_id2);
+                socket.emit(SocketEvents.SEND_MESSAGE, fetched_message.rows);
             }
         });
 
