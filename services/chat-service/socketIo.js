@@ -2,6 +2,7 @@ const socketio = require('socket.io');
 const chatMessage = require('../../model/chatMessage');
 const groupChatMessage = require('../../model/groupMessage');
 const SocketEvents = require('./SocketEvents');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = (http) => {
     const io = socketio(http, {
@@ -47,7 +48,7 @@ module.exports = (http) => {
 
         /**
         * Fetching room name and storing in db.
-        * @param {room} room
+        * @param {room_name} room_name
         */
         socket.on(SocketEvents.CREATE_ROOM, async (data) => {
 
@@ -55,11 +56,10 @@ module.exports = (http) => {
 
             socket.join(room_name);
 
-            // const group_id = 
+            await groupChatMessage.createGroup(uuidv4(), user_id);
 
-            await groupChatMessage.createGroup(group_id, user_id);
-
-            socket.to(room).emit(SocketEvents.ROOM_JOINED, socket.id);
+            // Use io to emit in whole room
+            io.in(room_name).emit(SocketEvents.ROOM_JOINED, 'socket.i');
         });
 
         /**

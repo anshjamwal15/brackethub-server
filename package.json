@@ -15,7 +15,8 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.20",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "uuid": "^9.0.0"
   },
   "scripts": {
     "dev": "nodemon index.js",
