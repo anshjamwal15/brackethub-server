@@ -47,23 +47,35 @@ module.exports = (http) => {
 
         /**
         * Fetching room name and storing in db.
+        * @param {room} room
+        */
+        socket.on(SocketEvents.CREATE_ROOM, async (data) => {
+
+            const { room_name, user_id } = data;
+
+            socket.join(room_name);
+
+            // const group_id = 
+
+            await groupChatMessage.createGroup(group_id, user_id);
+
+            socket.to(room).emit(SocketEvents.ROOM_JOINED, socket.id);
+        });
+
+        /**
+        * Fetching room name and storing in db.
         * @param {group_name} group_name
         * group_name should be emit from user end.
         * @param {sent_by} sent_by
         * sent_by will be email of the person who sent message 
         */
-        socket.on(SocketEvents.CREATE_ROOM, async (room) => {
+        socket.on(SocketEvents.SEND_GROUP_MESSAGE, async (data) => {
 
-            socket.join(room);
+            const { group_name, sent_by, message, room } = data;
 
-            socket.on(SocketEvents.SEND_GROUP_MESSAGE, async (data) => {
+            const save_group_message = await groupChatMessage.sendMessage('1', group_name, message, sent_by);
 
-                const { group_name, sent_by, message } = data;
-
-                const save_group_message = await groupChatMessage.sendMessage('1', group_name, message, sent_by);
-
-                socket.to(room).emit(SocketEvents.SHOW_GROUP_MESSAGE, save_group_message);
-            });
+            socket.to(room).emit(SocketEvents.SHOW_GROUP_MESSAGE, save_group_message);
         });
 
 
