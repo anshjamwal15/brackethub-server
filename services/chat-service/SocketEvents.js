@@ -8,6 +8,7 @@ module.exports = {
     CREATE_ROOM: 'create-room',
     SEND_GROUP_MESSAGE: 'group-message',
     SHOW_GROUP_MESSAGE: 'show-group-message',
-    ROOM_JOINED: 'user-joined'
+    ROOM_JOINED: 'user-joined',
+    JOIN_GROUP_CHAT: 'join-group-chat'
   };
   

@@ -21,10 +21,10 @@ module.exports = (http) => {
             const { user_id, user_id2, channel_type, message } = data;
 
             if (channel_type === 'group') {
-                await groupChatMessage.sendMessage();
+                await groupChatMessage.send_message();
             } else {
-                await chatMessage.sendMessage(user_id, user_id2, message);
-                const fetched_message = await chatMessage.getAllMessages(user_id, user_id2);
+                await chatMessage.send_message(user_id, user_id2, message);
+                const fetched_message = await chatMessage.get_all_messages(user_id, user_id2);
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message.rows);
             }
         });
@@ -38,10 +38,10 @@ module.exports = (http) => {
         socket.on(SocketEvents.SHOW_MESSAGE, async (data) => {
             const { user_id, user_id2, channel_type } = data;
             if (channel_type === 'group') {
-                const fetched_message = await groupChatMessage.sendMessage();
+                const fetched_message = await groupChatMessage.send_message();
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message);
             } else {
-                const fetched_message = await chatMessage.getAllMessages(user_id, user_id2);
+                const fetched_message = await chatMessage.get_all_messages(user_id, user_id2);
                 socket.emit(SocketEvents.SEND_MESSAGE, fetched_message.rows);
             }
         });
@@ -56,10 +56,25 @@ module.exports = (http) => {
 
             socket.join(room_name);
 
-            await groupChatMessage.createGroup(uuidv4(), room_name, user_id);
+            await groupChatMessage.create_group(uuidv4(), room_name, user_id);
 
-            // Use io to emit in whole room
-            io.in(room_name).emit(SocketEvents.ROOM_JOINED, 'socket.i');
+            // Use io.in() to emit in whole room or socket.in() to send expect sender
+            // io.in(room_name).emit(SocketEvents.ROOM_JOINED, 'socket.i');
+        });
+
+        /**
+        * Join group.
+        * @param {room_name} room_name
+        */
+        socket.on(SocketEvents.JOIN_GROUP_CHAT, async (data) => {
+
+            const { room_name, user_id } = data;
+
+            socket.join(room_name);
+
+            // Use io.in() to emit in whole room or socket.in() to send expect sender
+            const user_data = { message: `${user_id} joined the chat.`, user_id: user_id };
+            io.in(room_name).emit(SocketEvents.ROOM_JOINED, user_data);
         });
 
         /**
@@ -67,17 +82,19 @@ module.exports = (http) => {
         * @param {group_name} group_name
         * group_name should be emit from user end.
         * @param {sent_by} sent_by
-        * sent_by will be email of the person who sent message 
+        * sent_by will be email of the person who sent message.
+        * @param {room} room
+        * room will be uuid sent from client
         */
         socket.on(SocketEvents.SEND_GROUP_MESSAGE, async (data) => {
 
-            const { group_name, sent_by, message, room } = data;
+            const { group_name, sent_by, message, group_id } = data;
 
-            const save_group_message = await groupChatMessage.sendMessage('1', group_name, message, sent_by);
+            await groupChatMessage.send_message(group_id, group_name, message, sent_by);
 
-            socket.to(room).emit(SocketEvents.SHOW_GROUP_MESSAGE, save_group_message);
+            // Use io.in() to emit in whole room or socket.in() to send expect sender
+            io.in(group_name).emit(SocketEvents.SHOW_GROUP_MESSAGE, 'save_group_message');
         });
-
 
     });
 };

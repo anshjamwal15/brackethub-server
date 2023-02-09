@@ -79,7 +79,6 @@ CREATE TABLE ks1.group_chat_messages (
     group_name text,
     created_date timestamp,
     message text,
-    message_id bigint,
     sentby text,
     PRIMARY KEY ((group_id, group_name), created_date)
 ) WITH CLUSTERING ORDER BY (created_date ASC)
