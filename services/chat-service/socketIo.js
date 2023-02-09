@@ -47,7 +47,7 @@ module.exports = (http) => {
         });
 
         /**
-        * Fetching room name and storing in db.
+        * Creating room.
         * @param {room_name} room_name
         */
         socket.on(SocketEvents.CREATE_ROOM, async (data) => {
@@ -56,7 +56,7 @@ module.exports = (http) => {
 
             socket.join(room_name);
 
-            await groupChatMessage.createGroup(uuidv4(), user_id);
+            await groupChatMessage.createGroup(uuidv4(), room_name, user_id);
 
             // Use io to emit in whole room
             io.in(room_name).emit(SocketEvents.ROOM_JOINED, 'socket.i');
